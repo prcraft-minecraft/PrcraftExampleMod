@@ -4,10 +4,10 @@
   "name": "Example Mod",
   "description": "This is an example mod.",
   "mainClass": "com.example.ExampleMod",
-  "transformers": [
-    "com.example.transformers.MixinGuiMainMenu"
-  ],
   "dependencies": {
     "prcraft": ">=0.4.521"
-  }
+  },
+  "transformers": [
+    "com.example.transformers.MixinGuiMainMenu"
+  ]
 }
