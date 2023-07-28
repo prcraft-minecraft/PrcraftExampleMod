@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 
 @Mixin(GuiMainMenu.class)
-public class MixinGuiTitleScreen {
+public class MixinGuiMainMenu {
 
     @Inject(method = "initGui", at = @At(value = "HEAD"))
     public void initGui() {

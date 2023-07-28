@@ -66,7 +66,7 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
         )
         try {
             PrcraftInstaller.runInstaller(Files.newByteChannel(prcraft.resolve().first { it.extension == "zip" }
-                .toPath()), "0.0.0", minecraft.path, output.path)
+                .toPath()), prcraft.dependencies.first().version, minecraft.path, output.path)
         } catch (e: Exception) {
             output.path.deleteIfExists()
             throw e
@@ -78,8 +78,10 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
         config.mainClass = "net.minecraft.modding.impl.ModdedLaunch"
         config.args.clear()
         config.args.addAll(listOf(
-            "--username", "Dev", "--accessToken", "0",
-            "--gameDir", config.workingDir.absolutePath
+            "--username", "Dev",
+            "--accessToken", "0",
+            "--gameDir", config.workingDir.absolutePath,
+            "--disableUpdate"
         ))
 
         super.applyClientRunTransform(config)
