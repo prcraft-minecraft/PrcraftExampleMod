@@ -11,18 +11,14 @@ unimined.useGlobalCache = false
 group = "com.example"
 version = "1.0-SNAPSHOT"
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 repositories {
     mavenCentral()
     maven("https://maven.jemnetworks.com/releases")
-}
-
-dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 val minecraft_version = project.properties["minecraft_version"] as String
@@ -36,6 +32,15 @@ unimined.minecraft(sourceSets.main.get()) {
     // add our custom transformer
     customPatcher(PrcraftMinecraftTransformer(project, this as MinecraftProvider)) {
         loader(prcraft_version)
+    }
+}
+
+dependencies {
+}
+
+tasks.compileJava {
+    if (JavaVersion.current().isJava9Compatible) {
+        options.release.set(8)
     }
 }
 
