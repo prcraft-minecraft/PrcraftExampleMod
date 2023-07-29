@@ -5,7 +5,7 @@
   "description": "This is an example mod.",
   "mainClass": "com.example.ExampleMod",
   "dependencies": {
-    "prcraft": ">=0.4.545"
+    "prcraft": ">=0.4.547"
   },
   "transformers": [
     "com.example.transformers.MixinGuiMainMenu"
