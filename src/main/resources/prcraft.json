@@ -3,6 +3,9 @@
   "version": "${version}",
   "name": "Example Mod",
   "description": "This is an example mod.",
+  "contributors": {
+    "Myself": "Developer"
+  },
   "mainClass": "com.example.ExampleMod",
   "dependencies": {
     "prcraft": ">=0.4.547"
