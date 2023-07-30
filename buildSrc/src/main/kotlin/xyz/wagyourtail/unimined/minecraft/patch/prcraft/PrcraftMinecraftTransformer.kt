@@ -4,14 +4,11 @@ import io.github.gaming32.prcraftinstaller.PrcraftInstaller
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import xyz.wagyourtail.unimined.api.mapping.MappingNamespaceTree
-import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.runs.RunConfig
 import xyz.wagyourtail.unimined.internal.minecraft.MinecraftProvider
 import xyz.wagyourtail.unimined.internal.minecraft.patch.AbstractMinecraftTransformer
 import xyz.wagyourtail.unimined.internal.minecraft.patch.MinecraftJar
-import xyz.wagyourtail.unimined.internal.minecraft.patch.forge.fg3.mcpconfig.SubprocessExecutor
 import xyz.wagyourtail.unimined.internal.minecraft.resolver.Library
-import xyz.wagyourtail.unimined.util.FinalizeOnRead
 import xyz.wagyourtail.unimined.util.withSourceSet
 import java.nio.file.Files
 import kotlin.io.path.deleteIfExists
@@ -25,6 +22,7 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
         return false
     }
 
+    @JvmOverloads
     fun loader(dep: Any, action: Dependency.() -> Unit  = {}) {
         prcraft.dependencies.add(
             (if (dep is String && !dep.contains(":")) {
@@ -46,6 +44,7 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
                     dependsOn("mcp")
                     // allow this to write on top of retroMCP
                     allowDuplicateOutputs()
+                    mapNamespace("named", "mcp")
                     outputs("mcp", true) { listOf("official") }
                 }
             }) {
