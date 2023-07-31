@@ -8,7 +8,7 @@
   },
   "mainClass": "com.example.ExampleMod",
   "dependencies": {
-    "prcraft": ">=0.4.547"
+    "prcraft": ">=0.4.556"
   },
   "transformers": [
     "com.example.transformers.MixinGuiMainMenu"
