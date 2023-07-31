@@ -1,3 +1,4 @@
++ 0.4.557 &mdash; Fix config screen overriding and make "config" the default config dir
 + 0.4.556 &mdash; Fix loading Screen too early
 + 0.4.555 &mdash; Add a config dir API
 + 0.4.554 &mdash; Add Session.username
