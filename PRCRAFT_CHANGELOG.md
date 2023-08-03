@@ -1,3 +1,7 @@
++ 0.4.580 &mdash; Actually support environment specifier (`*`, `client`, or `dedicated_server`)
++ 0.4.579 &mdash; Rename `Side.Server` to `Side.DedicatedServer`
++ 0.4.577 &mdash; Add server support + environment specifier + `Side` annotations
++ 0.4.568 &mdash; Add `GameTickEvent` and `GameFrameEvent`
 + 0.4.557 &mdash; Fix config screen overriding and make "config" the default config dir
 + 0.4.556 &mdash; Fix loading Screen too early
 + 0.4.555 &mdash; Add a config dir API

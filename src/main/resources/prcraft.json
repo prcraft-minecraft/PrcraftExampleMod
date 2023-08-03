@@ -6,9 +6,10 @@
   "contributors": {
     "Myself": "Developer"
   },
+  "environment": "*",
   "mainClass": "com.example.ExampleMod",
   "dependencies": {
-    "prcraft": ">=0.4.556"
+    "prcraft": ">=0.4.580"
   },
   "transformers": [
     "com.example.transformers.MixinGuiMainMenu"
