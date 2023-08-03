@@ -1,3 +1,4 @@
++ 0.4.583 &mdash; Allow `@Side` in transformers and fix package-info
 + 0.4.581 &mdash; Add mod origin API (`ModInfo.origin()` and `ModInfo.originPath()`)
 + 0.4.580 &mdash; Actually support environment specifier (`*`, `client`, or `dedicated_server`)
 + 0.4.579 &mdash; Rename `Side.Server` to `Side.DedicatedServer`

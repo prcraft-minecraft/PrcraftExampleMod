@@ -9,7 +9,7 @@
   "environment": "*",
   "mainClass": "com.example.ExampleMod",
   "dependencies": {
-    "prcraft": ">=0.4.582"
+    "prcraft": ">=0.4.583"
   },
   "transformers": [
     "com.example.transformers.MixinGuiMainMenu"
