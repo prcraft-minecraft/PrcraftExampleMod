@@ -27,7 +27,6 @@ val prcraft_version = project.properties["prcraft_version"] as String
 
 unimined.minecraft(sourceSets.main.get()) {
     version(minecraft_version)
-    side("client")
 
 // default mappings add packages to some classes...
 // for remapping support you can uncomment this block
@@ -40,6 +39,7 @@ unimined.minecraft(sourceSets.main.get()) {
     // add our custom transformer
     customPatcher(PrcraftMinecraftTransformer(project, this as MinecraftProvider)) {
         loader(prcraft_version)
+        serverOnly = false // Change to true to only include server classes
     }
 }
 

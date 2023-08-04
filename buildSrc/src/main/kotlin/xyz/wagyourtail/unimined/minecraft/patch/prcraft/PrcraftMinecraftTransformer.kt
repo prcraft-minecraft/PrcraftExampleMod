@@ -3,6 +3,7 @@ package xyz.wagyourtail.unimined.minecraft.patch.prcraft
 import io.github.gaming32.prcraftinstaller.PrcraftInstaller
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
+import org.gradle.kotlin.dsl.create
 import xyz.wagyourtail.unimined.api.mapping.MappingNamespaceTree
 import xyz.wagyourtail.unimined.api.minecraft.EnvType
 import xyz.wagyourtail.unimined.api.runs.RunConfig
@@ -10,6 +11,7 @@ import xyz.wagyourtail.unimined.internal.minecraft.MinecraftProvider
 import xyz.wagyourtail.unimined.internal.minecraft.patch.AbstractMinecraftTransformer
 import xyz.wagyourtail.unimined.internal.minecraft.patch.MinecraftJar
 import xyz.wagyourtail.unimined.internal.minecraft.resolver.Library
+import xyz.wagyourtail.unimined.util.FinalizeOnRead
 import xyz.wagyourtail.unimined.util.withSourceSet
 import java.nio.file.Files
 import kotlin.io.path.deleteIfExists
@@ -17,6 +19,11 @@ import kotlin.io.path.deleteIfExists
 class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider) : AbstractMinecraftTransformer(project, provider, "prcraft") {
 
     val prcraft = project.configurations.maybeCreate(providerName.withSourceSet(provider.sourceSet))
+    var serverOnly by FinalizeOnRead(false)
+
+    init {
+        provider.side = EnvType.CLIENT
+    }
 
     // they're all minified and shaded
     override fun libraryFilter(library: Library): Boolean {
@@ -59,14 +66,30 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
     }
 
     override fun transform(minecraft: MinecraftJar): MinecraftJar {
+        if (minecraft.envType != EnvType.CLIENT) {
+            throw IllegalArgumentException(
+                "Please don't specify a side directly. Please use serverOnly in the customPatcher block."
+            )
+        }
         val output = MinecraftJar(
             minecraft,
             patches = minecraft.patches + "prcraft-${prcraft.dependencies.first().version}",
-            mappingNamespace = provider.mappings.getNamespace("customMCP")
+            mappingNamespace = provider.mappings.getNamespace("customMCP"),
+            envType = if (serverOnly) EnvType.SERVER else EnvType.CLIENT
         )
+        if (serverOnly) {
+            val prcraftDep = prcraft.dependencies.first()
+            prcraft.dependencies.clear()
+            prcraft.dependencies.add(project.dependencies.create(
+                prcraftDep.group!!, prcraftDep.name, prcraftDep.version, classifier = "server", ext = "zip"
+            ))
+        }
         try {
-            PrcraftInstaller.runInstaller(Files.newByteChannel(prcraft.resolve().first { it.extension == "zip" }
-                .toPath()), prcraft.dependencies.first().version, minecraft.path, output.path)
+            PrcraftInstaller.runInstaller(
+                Files.newByteChannel(prcraft.resolve().first { it.extension == "zip" }.toPath()),
+                prcraft.dependencies.first().version,
+                minecraft.path, output.path
+            )
         } catch (e: Exception) {
             output.path.deleteIfExists()
             throw e
@@ -100,11 +123,9 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
     }
 
     override fun applyExtraLaunches() {
-        if (provider.side == EnvType.CLIENT) {
-            project.logger.info("[Unimined/Minecraft] server config")
-            provider.runs.addTarget(provider.provideVanillaRunServerTask("server", project.file("run/server")))
-            provider.runs.configFirst("server", (provider.mcPatcher as AbstractMinecraftTransformer)::applyServerRunTransform)
-        }
+        project.logger.info("[Unimined/Minecraft] server config")
+        provider.runs.addTarget(provider.provideVanillaRunServerTask("server", project.file("run/server")))
+        provider.runs.configFirst("server", (provider.mcPatcher as AbstractMinecraftTransformer)::applyServerRunTransform)
     }
 
 }
