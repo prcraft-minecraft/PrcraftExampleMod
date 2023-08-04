@@ -12,6 +12,8 @@ import xyz.wagyourtail.unimined.internal.minecraft.patch.AbstractMinecraftTransf
 import xyz.wagyourtail.unimined.internal.minecraft.patch.MinecraftJar
 import xyz.wagyourtail.unimined.internal.minecraft.resolver.Library
 import xyz.wagyourtail.unimined.util.FinalizeOnRead
+import xyz.wagyourtail.unimined.util.SemVerUtils
+import xyz.wagyourtail.unimined.util.readZipInputStreamFor
 import xyz.wagyourtail.unimined.util.withSourceSet
 import java.nio.file.Files
 import kotlin.io.path.deleteIfExists
@@ -32,11 +34,14 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
 
     @JvmOverloads
     fun loader(dep: Any, action: Dependency.() -> Unit  = {}) {
-        prcraft.dependencies.add(
-            (if (dep is String && !dep.contains(":")) {
-                project.dependencies.create("io.github.gaming32:prcraft:$dep")
-            } else project.dependencies.create(dep)).apply(action)
-        )
+        prcraft.dependencies.add((
+            if (dep is String && !dep.contains(":")) {
+                val tail = if (SemVerUtils.matches(dep, ">=0.4.600")) ":slim" else ""
+                project.dependencies.create("io.github.gaming32:prcraft:$dep$tail@zip")
+            } else {
+                project.dependencies.create(dep)
+            }
+        ).apply(action))
     }
 
     override val prodNamespace: MappingNamespaceTree.Namespace by lazy {
@@ -65,6 +70,8 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
         super.beforeMappingsResolve()
     }
 
+    private fun getPatchPath() = prcraft.resolve().first { it.extension == "zip" }.toPath()
+
     override fun transform(minecraft: MinecraftJar): MinecraftJar {
         if (minecraft.envType != EnvType.CLIENT) {
             throw IllegalArgumentException(
@@ -77,16 +84,9 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
             mappingNamespace = provider.mappings.getNamespace("customMCP"),
             envType = if (serverOnly) EnvType.SERVER else EnvType.CLIENT
         )
-        if (serverOnly) {
-            val prcraftDep = prcraft.dependencies.first()
-            prcraft.dependencies.clear()
-            prcraft.dependencies.add(project.dependencies.create(
-                prcraftDep.group!!, prcraftDep.name, prcraftDep.version, classifier = "server", ext = "zip"
-            ))
-        }
         try {
             PrcraftInstaller.runInstaller(
-                Files.newByteChannel(prcraft.resolve().first { it.extension == "zip" }.toPath()),
+                Files.newByteChannel(getPatchPath()),
                 prcraft.dependencies.first().version,
                 minecraft.path, output.path
             )
@@ -126,6 +126,28 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
         project.logger.info("[Unimined/Minecraft] server config")
         provider.runs.addTarget(provider.provideVanillaRunServerTask("server", project.file("run/server")))
         provider.runs.configFirst("server", (provider.mcPatcher as AbstractMinecraftTransformer)::applyServerRunTransform)
+    }
+
+    override fun apply() {
+        if (serverOnly) {
+            val prcraftDep = prcraft.dependencies.first()
+            prcraft.dependencies.clear()
+            prcraft.dependencies.add(project.dependencies.create(
+                prcraftDep.group!!, prcraftDep.name, prcraftDep.version,
+                classifier = if (SemVerUtils.matches(prcraftDep.version!!, ">=0.4.600")) {
+                    "server-slim"
+                } else {
+                    "server"
+                },
+                ext = "zip"
+            ))
+        }
+        getPatchPath().readZipInputStreamFor("depslist.txt", false) {
+            it.bufferedReader(Charsets.UTF_8).forEachLine { dep ->
+                provider.minecraftLibraries.dependencies.add(project.dependencies.create(dep))
+            }
+        }
+        super.apply()
     }
 
 }

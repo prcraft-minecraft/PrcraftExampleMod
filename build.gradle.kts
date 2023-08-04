@@ -19,6 +19,7 @@ java {
 repositories {
     mavenCentral()
     maven("https://maven.jemnetworks.com/releases")
+    maven("https://maven.lenni0451.net/releases")
 }
 
 val minecraft_version = project.properties["minecraft_version"] as String
