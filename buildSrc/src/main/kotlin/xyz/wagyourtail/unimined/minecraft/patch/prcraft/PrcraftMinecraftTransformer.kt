@@ -21,6 +21,11 @@ import kotlin.io.path.deleteIfExists
 class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider) : AbstractMinecraftTransformer(project, provider, "prcraft") {
 
     val prcraft = project.configurations.maybeCreate(providerName.withSourceSet(provider.sourceSet))
+
+    val prcraftRuntime = project.configurations.maybeCreate("prcraftRuntime".withSourceSet(provider.sourceSet)).also {
+        project.configurations.getByName("runtimeOnly".withSourceSet(provider.sourceSet)).extendsFrom(it)
+    }
+
     var serverOnly by FinalizeOnRead(false)
 
     init {
@@ -144,7 +149,15 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
         }
         getPatchPath().readZipInputStreamFor("depslist.txt", false) {
             it.bufferedReader(Charsets.UTF_8).forEachLine { dep ->
-                provider.minecraftLibraries.dependencies.add(project.dependencies.create(dep))
+                if ('\t' in dep) {
+                    when (val classpath = dep.substringBefore('\t')) {
+                        "all" -> provider.minecraftLibraries
+                        "runtime" -> prcraftRuntime
+                        else -> throw IllegalArgumentException("Unknown depslist.txt classpath: $classpath")
+                    }.dependencies.add(project.dependencies.create(dep.substringAfter('\t')))
+                } else {
+                    provider.minecraftLibraries.dependencies.add(project.dependencies.create(dep))
+                }
             }
         }
         super.apply()
