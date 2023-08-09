@@ -7,9 +7,10 @@
     "Myself": "Developer"
   },
   "environment": "*",
+  "icon": "icon.png",
   "mainClass": "com.example.ExampleMod",
   "dependencies": {
-    "prcraft": ">=0.4.599"
+    "prcraft": ">=0.4.627"
   },
   "transformers": [
     "com.example.transformers.MixinGuiMainMenu"
