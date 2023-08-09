@@ -40,13 +40,13 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
     @JvmOverloads
     fun loader(dep: Any, action: Dependency.() -> Unit  = {}) {
         prcraft.dependencies.add((
-            if (dep is String && !dep.contains(":")) {
-                val tail = if (SemVerUtils.matches(dep, ">=0.4.600")) ":slim" else ""
-                project.dependencies.create("io.github.gaming32:prcraft:$dep$tail@zip")
-            } else {
-                project.dependencies.create(dep)
-            }
-        ).apply(action))
+                if (dep is String && !dep.contains(":")) {
+                    val tail = if (SemVerUtils.matches(dep, ">=0.4.600")) ":slim" else ""
+                    project.dependencies.create("io.github.gaming32:prcraft:$dep$tail@zip")
+                } else {
+                    project.dependencies.create(dep)
+                }
+                ).apply(action))
     }
 
     override val prodNamespace: MappingNamespaceTree.Namespace by lazy {
@@ -153,10 +153,11 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
                     when (val classpath = dep.substringBefore('\t')) {
                         "all" -> provider.minecraftLibraries
                         "runtime" -> prcraftRuntime
+                        "mod" -> project.configurations.getByName("modImplementation".withSourceSet(provider.sourceSet))
                         else -> throw IllegalArgumentException("Unknown depslist.txt classpath: $classpath")
                     }.dependencies.add(project.dependencies.create(dep.substringAfter('\t')))
                 } else {
-                    provider.minecraftLibraries.dependencies.add(project.dependencies.create(dep))
+                    project.configurations.getByName("modImplementation".withSourceSet(provider.sourceSet)).dependencies.add(project.dependencies.create(dep))
                 }
             }
         }
