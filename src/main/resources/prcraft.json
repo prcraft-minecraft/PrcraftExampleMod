@@ -9,8 +9,13 @@
   "environment": "*",
   "icon": "icon.png",
   "mainClass": "com.example.ExampleMod",
+  "eventHandlers": {
+    "net.minecraft.modding.api.event.client.ClientInitializingEvent": [
+      "com.example.client.ExampleModClient"
+    ]
+  },
   "dependencies": {
-    "prcraft": ">=0.4.640"
+    "prcraft": ">=0.4.644"
   },
   "transformers": [
     "com.example.transformers.**"
