@@ -10,7 +10,7 @@
   "icon": "icon.png",
   "mainClass": "com.example.ExampleMod",
   "dependencies": {
-    "prcraft": ">=0.4.627"
+    "prcraft": ">=0.4.637"
   },
   "transformers": [
     "com.example.transformers.MixinGuiMainMenu"
