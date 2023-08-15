@@ -10,12 +10,14 @@ import xyz.wagyourtail.unimined.api.runs.RunConfig
 import xyz.wagyourtail.unimined.internal.minecraft.MinecraftProvider
 import xyz.wagyourtail.unimined.internal.minecraft.patch.AbstractMinecraftTransformer
 import xyz.wagyourtail.unimined.internal.minecraft.patch.MinecraftJar
+import xyz.wagyourtail.unimined.internal.minecraft.resolver.AssetsDownloader
 import xyz.wagyourtail.unimined.internal.minecraft.resolver.Library
 import xyz.wagyourtail.unimined.util.FinalizeOnRead
 import xyz.wagyourtail.unimined.util.SemVerUtils
 import xyz.wagyourtail.unimined.util.readZipInputStreamFor
 import xyz.wagyourtail.unimined.util.withSourceSet
 import java.nio.file.Files
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.deleteIfExists
 
 class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider) : AbstractMinecraftTransformer(project, provider, "prcraft") {
@@ -109,7 +111,9 @@ class PrcraftMinecraftTransformer(project: Project, provider: MinecraftProvider)
             "--username", "Dev",
             "--accessToken", "0",
             "--gameDir", config.workingDir.absolutePath,
-            "--disableUpdate"
+            "--disableUpdate",
+            "--assetsDir", AssetsDownloader.assetsDir(project).absolutePathString(),
+            "--assetIndex", provider.minecraftData.metadata.assetIndex?.id ?: "pre-1.6"
         ))
         config.jvmArgs += "-Dprcraft.sideEnvironment=client"
 

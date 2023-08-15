@@ -7,7 +7,7 @@
     "Myself": "Developer"
   },
   "environment": "*",
-  "icon": "icon.png",
+  "icon": "assets/examplemod/icon.png",
   "mainClass": "com.example.ExampleMod",
   "eventHandlers": {
     "net.minecraft.modding.api.event.client.ClientInitializingEvent": [
@@ -15,7 +15,7 @@
     ]
   },
   "dependencies": {
-    "prcraft": ">=0.4.646"
+    "prcraft": ">=0.4.651"
   },
   "transformers": [
     "com.example.transformers.**"
