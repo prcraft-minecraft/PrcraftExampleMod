@@ -15,7 +15,7 @@
     ]
   },
   "dependencies": {
-    "prcraft": ">=0.4.651"
+    "prcraft": ">=0.4.653"
   },
   "transformers": [
     "com.example.transformers.**"
